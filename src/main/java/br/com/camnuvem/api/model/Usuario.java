@@ -5,10 +5,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
+import jakarta.persistence.Entity;  
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,8 +22,8 @@ public class Usuario implements UserDetails{
     private Long id;
     private String nome;
     private String login;
-    
     private String senha;
+    private UserRole role;
 
     @OneToMany(mappedBy = "usuario", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Telefone> telefones = new ArrayList<Telefone>();
@@ -30,12 +31,19 @@ public class Usuario implements UserDetails{
     public Usuario() {
     }
 
-    public Usuario(String nome, String login, Long id, String senha) {
+    public Usuario(String nome, String login, String senha, UserRole role) {
         this.nome = nome;
         this.login = login;
-        this.id = id;
+        this.role = role;
         this.senha = senha;
     }
+    public Usuario(String login, String senha, UserRole role) {
+
+        this.login = login;
+        this.senha = senha;
+        this.role = role;
+    }
+    
 
     public String getNome() {
         return nome;
@@ -80,7 +88,14 @@ public class Usuario implements UserDetails{
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAuthorities'");
+        if (this.role == UserRole.ADMIN){
+            return List.of(
+                new SimpleGrantedAuthority("ROLE_ADMIN"),
+                new SimpleGrantedAuthority("ROLE_USER")
+            );
+        } else {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
     }
 
     @Override
@@ -97,25 +112,20 @@ public class Usuario implements UserDetails{
 
     @Override
     public boolean isAccountNonExpired() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonExpired'");
+        return true;
     }
-
     @Override
     public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAccountNonLocked'");
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isCredentialsNonExpired'");
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEnabled'");
+        return true;
     }
 }
